@@ -76,6 +76,25 @@ bureau_git_prompt () {
 
 _PATH="%{$fg_bold[white]%}%~%{$reset_color%}"
 
+shop_world_path() {
+  local path="${PWD}"
+  # First convert to home-relative path
+  path="${path/#$HOME/~}"
+
+  # Define the prefix to replace
+  local prefix="~/world/trees/root/src"
+
+  # Replace ~/world/trees/root/src with //
+  if [[ "$path" == "$prefix" ]]; then
+    echo "%{$fg_bold[green]%}//%{$reset_color%}"
+  elif [[ "$path" == "$prefix"/* ]]; then
+    # Remove the prefix and add //
+    echo "%{$fg_bold[green]%}//${path#$prefix/}%{$reset_color%}"
+  else
+    echo "%{$fg_bold[white]%}$path%{$reset_color%}"
+  fi
+}
+
 if [[ $EUID -eq 0 ]]; then
   _USERNAME="%{$fg_bold[red]%}%n"
   _LIBERTY="%{$fg[red]%}#"
@@ -117,7 +136,7 @@ setopt prompt_subst
 
 #_1LEFT="$_USERNAME $_PATH"
 _1RIGHT=''
-_1LEFT="[%*] $_PATH \$(bureau_git_prompt) \$(get_usables)"
+_1LEFT="[%D{%r %Z}] \$(shop_world_path) \$(bureau_git_prompt) \$(get_usables)"
 
 bureau_precmd () {
   print
