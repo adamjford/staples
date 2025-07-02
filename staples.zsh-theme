@@ -134,36 +134,23 @@ last_status () {
   echo "%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%})"
 }
 
-vi_mode_prompt () {
-  local mode_indicator=""
-  case $ZVM_MODE in
-    $ZVM_MODE_NORMAL)
-      mode_indicator="<NORMAL>"
-      ;;
-    $ZVM_MODE_INSERT)
-      mode_indicator="<INSERT>"
-      ;;
-    $ZVM_MODE_VISUAL)
-      mode_indicator="<VISUAL>"
-      ;;
-    $ZVM_MODE_VISUAL_LINE)
-      mode_indicator="<VISUAL LINE>"
-      ;;
-    $ZVM_MODE_REPLACE)
-      mode_indicator="<REPLACE>"
-      ;;
-    *)
-      mode_indicator=""
-      ;;
+function set-prompt () {
+  case ${KEYMAP} in
+    (vicmd)      VI_MODE="<NORMAL>" ;;
+    (main|viins) VI_MODE="<INSERT>" ;;
+    (*)          VI_MODE="<INSERT>" ;;
   esac
-  echo "$mode_indicator"
+
+  PROMPT='%{$fg[red]%}$(ssh_status_prompt)%{$fg[magenta]%}$VI_MODE%{$reset_color%} $_LIBERTY '
 }
 
-#setopt prompt_subst
-PROMPT='%{$fg[red]%}$(ssh_status_prompt)%{$fg[magenta]%}$(vi_mode_prompt)%{$reset_color%} $_LIBERTY '
+function zle-line-init zle-keymap-select {
+  set-prompt
+  zle reset-prompt
+}
 
-#RPROMPT='$(nvm_prompt_info) $(get_usables) $(bureau_git_prompt)'
-RPROMPT=''
+zle -N zle-line-init
+zle -N zle-keymap-select
 
 autoload -U add-zsh-hook
 add-zsh-hook precmd bureau_precmd
