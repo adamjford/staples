@@ -124,6 +124,24 @@ get_usables () {
 		usables="<bundler> $usables"
 	fi
 
+  case $ZVM_MODE in
+    $ZVM_MODE_NORMAL)
+      usables="<NORMAL> $usables"
+    ;;
+    $ZVM_MODE_INSERT)
+      usables="<INSERT> $usables"
+    ;;
+    $ZVM_MODE_VISUAL)
+      usables="<VISUAL> $usables"
+    ;;
+    $ZVM_MODE_VISUAL_LINE)
+      usables="<VISUAL LINE> $usables"
+    ;;
+    $ZVM_MODE_REPLACE)
+      usables="<REPLACE> $usables"
+    ;;
+  esac
+
 	if [[ -n $usables ]]; then
 		echo "%{$fg[magenta]%}$usables%{$reset_color%}"
 	fi
