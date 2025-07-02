@@ -86,43 +86,8 @@ fi
 _USERNAME="$_USERNAME%{$reset_color%}@%m"
 _LIBERTY="$_LIBERTY%{$reset_color%}"
 
-
-get_space () {
-  local STR=$1$2
-  local zero='%([BSUbfksu]|([FB]|){*})'
-  local LENGTH=${#${(S%%)STR//$~zero/}}
-  local SPACES=""
-  (( LENGTH = ${COLUMNS} - $LENGTH - 1))
-
-  for i in {0..$LENGTH}
-    do
-      SPACES="$SPACES "
-    done
-
-  echo $SPACES
-}
-
 get_usables () {
 	local usables='';
-	if [[ -a gulpfile.js ]]; then
-		usables="<gulp> $usables"
-	fi
-
-	if [[ -a 'composer.json' ]]; then
-		usables="<composer> $usables"
-	fi
-
-	if [[ -f 'package.json' ]]; then
-		usables="<npm> $usables"
-	fi
-
-	if [[ -f 'VagrantFile' ]]; then
-		usables="<vagrant> $usables"
-	fi
-
-  if [[ -f 'Gemfile' ]]; then
-		usables="<bundler> $usables"
-	fi
 
   case $ZVM_MODE in
     $ZVM_MODE_NORMAL)
@@ -150,13 +115,12 @@ get_usables () {
 setopt prompt_subst
 
 #_1LEFT="$_USERNAME $_PATH"
-_1RIGHT=' [%*] '
-_1LEFT="$_PATH"
+_1RIGHT=''
+_1LEFT="[%*] $_PATH \$(bureau_git_prompt) \$(get_usables)"
 
 bureau_precmd () {
-  _1SPACES=`get_space $_1LEFT $_1RIGHT`
   print
-  print -rP "$_1LEFT$_1SPACES$_1RIGHT"
+  print -rP "$_1LEFT"
 }
 
 ssh_status_prompt () {
@@ -202,7 +166,7 @@ last_status () {
 PROMPT='%{$fg[red]%}$(ssh_status_prompt)$(last_status)%{$reset_color%}$_LIBERTY '
 
 #RPROMPT='$(nvm_prompt_info) $(get_usables) $(bureau_git_prompt)'
-RPROMPT='$(get_usables)$(bureau_git_prompt)'
+RPROMPT=''
 
 autoload -U add-zsh-hook
 add-zsh-hook precmd bureau_precmd
