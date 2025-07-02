@@ -88,24 +88,25 @@ _LIBERTY="$_LIBERTY%{$reset_color%}"
 
 get_usables () {
 	local usables='';
+	if [[ -a gulpfile.js ]]; then
+		usables="<gulp> $usables"
+	fi
 
-  case $ZVM_MODE in
-    $ZVM_MODE_NORMAL)
-      usables="<NORMAL> $usables"
-    ;;
-    $ZVM_MODE_INSERT)
-      usables="<INSERT> $usables"
-    ;;
-    $ZVM_MODE_VISUAL)
-      usables="<VISUAL> $usables"
-    ;;
-    $ZVM_MODE_VISUAL_LINE)
-      usables="<VISUAL LINE> $usables"
-    ;;
-    $ZVM_MODE_REPLACE)
-      usables="<REPLACE> $usables"
-    ;;
-  esac
+	if [[ -a 'composer.json' ]]; then
+		usables="<composer> $usables"
+	fi
+
+	if [[ -f 'package.json' ]]; then
+		usables="<npm> $usables"
+	fi
+
+	if [[ -f 'VagrantFile' ]]; then
+		usables="<vagrant> $usables"
+	fi
+
+	if [[ -f 'Gemfile' ]]; then
+		usables="<bundler> $usables"
+	fi
 
 	if [[ -n $usables ]]; then
 		echo "%{$fg[magenta]%}$usables%{$reset_color%}"
@@ -129,41 +130,37 @@ ssh_status_prompt () {
 	fi
 }
 
-# Show colorful chevrons according to what month it is.
-seasonal_chevrons () {
-  local date=$(date)
-  local chevrons="❯❯❯"
-
-  case $date in
-    # spring
-    *Mar*|*Apr*|*May*)
-      chevrons="%F{#81D4FA}❯%F{#A5D6A7}❯%F{#FFF59D}❯%f"
-      ;;
-    # summer
-    *Jun*|*Jul*|*Aug*)
-      chevrons="%F{#A5D6A7}❯%F{#FFF59D}❯%F{#FFAB91}❯%f"
-      ;;
-    # fall
-    *Sep*|*Oct*|*Nov*)
-      chevrons="%F{#E6EE9C}❯%F{#FFCC80}❯%F{#F48FB1}❯%f"
-      ;;
-    # winter
-    *Dec*|*Jan*|*Feb*)
-      chevrons="%F{#B39DDB}❯%F{#81D4FA}❯%F{#A5D6A7}❯%f"
-      ;;
-    *)
-      ;;
-  esac
-
-  echo -en $chevrons
+last_status () {
+  echo "%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%})"
 }
 
-last_status () {
-  echo "%(?:%{$fg_bold[green]%}$(seasonal_chevrons):%{$fg_bold[red]%}$(seasonal_chevrons))"
+vi_mode_prompt () {
+  local mode_indicator=""
+  case $ZVM_MODE in
+    $ZVM_MODE_NORMAL)
+      mode_indicator="<NORMAL>"
+      ;;
+    $ZVM_MODE_INSERT)
+      mode_indicator="<INSERT>"
+      ;;
+    $ZVM_MODE_VISUAL)
+      mode_indicator="<VISUAL>"
+      ;;
+    $ZVM_MODE_VISUAL_LINE)
+      mode_indicator="<VISUAL LINE>"
+      ;;
+    $ZVM_MODE_REPLACE)
+      mode_indicator="<REPLACE>"
+      ;;
+    *)
+      mode_indicator=""
+      ;;
+  esac
+  echo "$mode_indicator"
 }
 
 #setopt prompt_subst
-PROMPT='%{$fg[red]%}$(ssh_status_prompt)$(last_status)%{$reset_color%}$_LIBERTY '
+PROMPT='%{$fg[red]%}$(ssh_status_prompt)%{$fg[magenta]%}$(vi_mode_prompt)%{$reset_color%} $_LIBERTY '
 
 #RPROMPT='$(nvm_prompt_info) $(get_usables) $(bureau_git_prompt)'
 RPROMPT=''
