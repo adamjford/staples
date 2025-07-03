@@ -56,7 +56,6 @@ bureau_git_status () {
 
 bureau_git_prompt () {
   local _branch=$(bureau_git_branch)
-  local _branch=$(bureau_git_branch)
   # if [ -n "$SSH_CLIENT" ]; then
   #   _status=""
   # else
