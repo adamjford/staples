@@ -22,6 +22,10 @@ typeset -A _git_cache
 typeset -A _git_cache_time
 
 bureau_git_branch () {
+  # Temporarily disable git branch to test performance
+  echo "test-branch"
+  return
+  
   local cache_key="${PWD}_branch"
   local current_time=$(date +%s)
   
@@ -44,6 +48,10 @@ bureau_git_branch () {
 }
 
 bureau_git_status () {
+  # Temporarily disable git status to test performance
+  echo ""
+  return
+  
   local cache_key="${PWD}_status"
   local current_time=$(date +%s)
   
