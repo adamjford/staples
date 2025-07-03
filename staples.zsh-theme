@@ -147,6 +147,10 @@ _USERNAME="$_USERNAME%{$reset_color%}@%m"
 _LIBERTY="$_LIBERTY%{$reset_color%}"
 
 get_usables () {
+	# Temporarily disable to test performance
+	echo ""
+	return
+	
 	local usables='';
 	if [[ -a gulpfile.js ]]; then
 		usables="<gulp> $usables"
@@ -180,6 +184,9 @@ _1RIGHT=''
 _1LEFT="[%D{%r %Z}] \$(shop_world_path) \$(bureau_git_prompt) \$(get_usables)"
 
 bureau_precmd () {
+  # Temporarily disable precmd to test performance
+  return
+  
   print
   print -rP "$_1LEFT"
 }
