@@ -3,16 +3,17 @@
 
 ### Colour Variables
 # Customize these to change the colour scheme
-TIME_COLOUR="%{$fg[black]%}"
+GREY_COLOUR="%F{242}"
+TIME_COLOUR="${GREY_COLOUR}"
 PATH_COLOUR="%{$fg[blue]%}"
 SHOPWORLD_COLOUR="%{$fg_bold[green]%}"
-GIT_BRACKETS_COLOUR="%{$fg[black]%}"
+GIT_BRACKETS_COLOUR="${GREY_COLOUR}"
 GIT_BRANCH_NAME_COLOUR="%F{136}" # bronze
 USABLES_COLOUR="%{$fg[magenta]%}"
 VI_MODE_COLOUR="%{$fg[magenta]%}"
 SSH_COLOUR="%{$fg[red]%}"
 ERROR_COLOUR="%{$fg[red]%}"
-PROMPT_SYMBOL_COLOUR="%{$fg[black]%}"
+PROMPT_SYMBOL_COLOUR="${GREY_COLOUR}"
 ROOT_SYMBOL_COLOUR="%{$fg[red]%}"
 
 ### NVM
