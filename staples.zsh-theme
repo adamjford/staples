@@ -22,10 +22,6 @@ typeset -A _git_cache
 typeset -A _git_cache_time
 
 bureau_git_branch () {
-  # Temporarily disable git branch to test performance
-  echo "test-branch"
-  return
-  
   local cache_key="${PWD}_branch"
   local current_time=$(date +%s)
   
@@ -48,10 +44,6 @@ bureau_git_branch () {
 }
 
 bureau_git_status () {
-  # Temporarily disable git status to test performance
-  echo ""
-  return
-  
   local cache_key="${PWD}_status"
   local current_time=$(date +%s)
   
@@ -147,10 +139,6 @@ _USERNAME="$_USERNAME%{$reset_color%}@%m"
 _LIBERTY="$_LIBERTY%{$reset_color%}"
 
 get_usables () {
-	# Temporarily disable to test performance
-	echo ""
-	return
-	
 	local usables='';
 	if [[ -a gulpfile.js ]]; then
 		usables="<gulp> $usables"
@@ -184,9 +172,6 @@ _1RIGHT=''
 _1LEFT="[%D{%r %Z}] \$(shop_world_path) \$(bureau_git_prompt) \$(get_usables)"
 
 bureau_precmd () {
-  # Temporarily disable precmd to test performance
-  return
-  
   print
   print -rP "$_1LEFT"
 }
