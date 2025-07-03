@@ -1,6 +1,20 @@
 # oh-my-zsh Bureau Theme
 # Wildly hacked on to add context sensitive tags on right side
 
+### Colour Variables
+# Customize these to change the colour scheme
+TIME_COLOUR="%{$fg[black]%}"
+PATH_COLOUR="%{$fg[blue]%}"
+SHOPWORLD_COLOUR="%{$fg_bold[green]%}"
+GIT_BRACKETS_COLOUR="%{$fg[black]%}"
+GIT_BRANCH_NAME_COLOUR="%F{136}" # bronze
+USABLES_COLOUR="%{$fg[magenta]%}"
+VI_MODE_COLOUR="%{$fg[magenta]%}"
+SSH_COLOUR="%{$fg[red]%}"
+ERROR_COLOUR="%{$fg[red]%}"
+PROMPT_SYMBOL_COLOUR="%{$fg[black]%}"
+ROOT_SYMBOL_COLOUR="%{$fg[red]%}"
+
 ### NVM
 
 ZSH_THEME_NVM_PROMPT_PREFIX="%B⬡%b "
@@ -8,8 +22,8 @@ ZSH_THEME_NVM_PROMPT_SUFFIX=""
 
 ### Git [±master ▾●]
 
-ZSH_THEME_GIT_PROMPT_PREFIX="[%{$fg_bold[green]%}%{$reset_color%}%{$fg_bold[white]%}"
-ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}]"
+ZSH_THEME_GIT_PROMPT_PREFIX="${GIT_BRACKETS_COLOUR}[%{$reset_color%}${GIT_BRANCH_NAME_COLOUR}"
+ZSH_THEME_GIT_PROMPT_SUFFIX="${GIT_BRACKETS_COLOUR}]%{$reset_color%}"
 ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg_bold[blue]%}✓%{$reset_color%}"
 ZSH_THEME_GIT_PROMPT_AHEAD="%{$fg[red]%}▴%{$reset_color%}"
 ZSH_THEME_GIT_PROMPT_BEHIND="%{$fg[magenta]%}▾%{$reset_color%}"
@@ -56,13 +70,9 @@ bureau_git_status () {
 
 bureau_git_prompt () {
   local _branch=$(bureau_git_branch)
-  # if [ -n "$SSH_CLIENT" ]; then
-  #   _status=""
-  # else
-    local _status=$(bureau_git_status)
-  # fi
-
+  local _status=$(bureau_git_status)
   local _result=""
+
   if [[ "${_branch}x" != "x" ]]; then
     _result="$ZSH_THEME_GIT_PROMPT_PREFIX$_branch"
     if [[ "${_status}x" != "x" ]]; then
@@ -70,6 +80,7 @@ bureau_git_prompt () {
     fi
     _result="$_result$ZSH_THEME_GIT_PROMPT_SUFFIX"
   fi
+
   echo $_result
 }
 
@@ -85,21 +96,21 @@ shop_world_path() {
 
   # Replace ~/world/trees/root/src with //
   if [[ "$path" == "$prefix" ]]; then
-    echo "%{$fg_bold[green]%}//%{$reset_color%}"
+    echo "${SHOPWORLD_COLOUR}//%{$reset_color%}"
   elif [[ "$path" == "$prefix"/* ]]; then
     # Remove the prefix and add //
-    echo "%{$fg_bold[green]%}//${path#$prefix/}%{$reset_color%}"
+    echo "${SHOPWORLD_COLOUR}//${path#$prefix/}%{$reset_color%}"
   else
-    echo "%{$fg_bold[white]%}$path%{$reset_color%}"
+    echo "${PATH_COLOUR}$path%{$reset_color%}"
   fi
 }
 
 if [[ $EUID -eq 0 ]]; then
   _USERNAME="%{$fg_bold[red]%}%n"
-  _LIBERTY="%{$fg[red]%}#"
+  _LIBERTY="${ROOT_SYMBOL_COLOUR}#"
 else
   _USERNAME="%{$fg_bold[white]%}%n"
-  _LIBERTY="%{$fg[green]%}$"
+  _LIBERTY="${PROMPT_SYMBOL_COLOUR}$"
 fi
 _USERNAME="$_USERNAME%{$reset_color%}@%m"
 _LIBERTY="$_LIBERTY%{$reset_color%}"
@@ -127,7 +138,7 @@ get_usables () {
 	fi
 
 	if [[ -n $usables ]]; then
-		echo "%{$fg[magenta]%}$usables%{$reset_color%}"
+		echo "${USABLES_COLOUR}$usables%{$reset_color%}"
 	fi
 }
 
@@ -135,7 +146,7 @@ setopt prompt_subst
 
 #_1LEFT="$_USERNAME $_PATH"
 _1RIGHT=''
-_1LEFT="[%D{%r %Z}] \$(shop_world_path) \$(bureau_git_prompt) \$(get_usables)"
+_1LEFT="${TIME_COLOUR}[%D{%r %Z}]%{$reset_color%} \$(shop_world_path) \$(bureau_git_prompt) \$(get_usables)"
 
 bureau_precmd () {
   print
@@ -149,8 +160,9 @@ ssh_status_prompt () {
 }
 
 last_status () {
-  echo "%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%})"
+  echo "%(?::❌ )"
 }
+
 
 function set-prompt () {
   case ${KEYMAP} in
@@ -159,7 +171,7 @@ function set-prompt () {
     (*)          VI_MODE="<INSERT>" ;;
   esac
 
-  PROMPT='%{$fg[red]%}$(ssh_status_prompt)%{$fg[magenta]%}$VI_MODE%{$reset_color%} $_LIBERTY '
+  PROMPT='$(last_status)${SSH_COLOUR}$(ssh_status_prompt)${VI_MODE_COLOUR}$VI_MODE%{$reset_color%} $_LIBERTY '
 }
 
 function zle-line-init zle-keymap-select {
