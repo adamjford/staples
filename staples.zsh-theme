@@ -17,45 +17,13 @@ ZSH_THEME_GIT_PROMPT_STAGED="%{$fg_bold[yellow]%}●%{$reset_color%}"
 ZSH_THEME_GIT_PROMPT_UNSTAGED="%{$fg_bold[green]%}●%{$reset_color%}"
 ZSH_THEME_GIT_PROMPT_UNTRACKED="%{$fg_bold[cyan]%}●%{$reset_color%}"
 
-# Cache for git operations to speed up large repos
-typeset -A _git_cache
-typeset -A _git_cache_time
-
 bureau_git_branch () {
-  # Use hash of PWD to avoid special characters in cache key
-  local cache_key="$(echo "$PWD" | md5)_branch"
-  local current_time=$(date +%s)
-  
-  # Use cached result if less than 2 seconds old
-  if [[ -n "${_git_cache_time[$cache_key]}" ]] && 
-     (( current_time - _git_cache_time[$cache_key] < 2 )); then
-    echo "${_git_cache[$cache_key]}"
-    return
-  fi
-  
   ref=$(command git symbolic-ref HEAD 2> /dev/null) || \
   ref=$(command git rev-parse --short HEAD 2> /dev/null) || return
-  local branch="${ref#refs/heads/}"
-  
-  # Cache result
-  _git_cache[$cache_key]="$branch"
-  _git_cache_time[$cache_key]="$current_time"
-  
-  echo "$branch"
+  echo "${ref#refs/heads/}"
 }
 
 bureau_git_status () {
-  # Use hash of PWD to avoid special characters in cache key
-  local cache_key="$(echo "$PWD" | md5)_status"
-  local current_time=$(date +%s)
-  
-  # Use cached result if less than 2 seconds old
-  if [[ -n "${_git_cache_time[$cache_key]}" ]] && 
-     (( current_time - _git_cache_time[$cache_key] < 2 )); then
-    echo "${_git_cache[$cache_key]}"
-    return
-  fi
-  
   _INDEX=$(command git status -uno --porcelain -b 2> /dev/null)
   _STATUS=""
   if $(echo "$_INDEX" | grep '^[AMRD]. ' &> /dev/null); then
@@ -82,10 +50,6 @@ bureau_git_status () {
   if $(echo "$_INDEX" | grep '^## .*diverged' &> /dev/null); then
     _STATUS="$_STATUS$ZSH_THEME_GIT_PROMPT_DIVERGED"
   fi
-
-  # Cache result
-  _git_cache[$cache_key]="$_STATUS"
-  _git_cache_time[$cache_key]="$current_time"
 
   echo $_STATUS
 }
