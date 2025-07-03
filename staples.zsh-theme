@@ -22,7 +22,8 @@ typeset -A _git_cache
 typeset -A _git_cache_time
 
 bureau_git_branch () {
-  local cache_key="${PWD}_branch"
+  # Use hash of PWD to avoid special characters in cache key
+  local cache_key="$(echo "$PWD" | md5)_branch"
   local current_time=$(date +%s)
   
   # Use cached result if less than 2 seconds old
@@ -44,7 +45,8 @@ bureau_git_branch () {
 }
 
 bureau_git_status () {
-  local cache_key="${PWD}_status"
+  # Use hash of PWD to avoid special characters in cache key
+  local cache_key="$(echo "$PWD" | md5)_status"
   local current_time=$(date +%s)
   
   # Use cached result if less than 2 seconds old
