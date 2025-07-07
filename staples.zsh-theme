@@ -21,6 +21,19 @@ ROOT_SYMBOL_COLOUR="%{$fg[red]%}"
 ZSH_THEME_NVM_PROMPT_PREFIX="%B⬡%b "
 ZSH_THEME_NVM_PROMPT_SUFFIX=""
 
+### Shared Truncation Function
+
+truncate_name() {
+  local name="$1"
+  local max_length=60
+  
+  if [[ ${#name} -gt $max_length ]]; then
+    echo "${name:0:$((max_length-1))}…"
+  else
+    echo "$name"
+  fi
+}
+
 ### Git [±master ▾●]
 
 ZSH_THEME_GIT_PROMPT_PREFIX="${GIT_BRACKETS_COLOUR}[%{$reset_color%}${GIT_BRANCH_NAME_COLOUR}"
@@ -35,7 +48,9 @@ ZSH_THEME_GIT_PROMPT_UNTRACKED="%{$fg_bold[cyan]%}●%{$reset_color%}"
 bureau_git_branch () {
   ref=$(command git symbolic-ref HEAD 2> /dev/null) || \
   ref=$(command git rev-parse --short HEAD 2> /dev/null) || return
-  echo "${ref#refs/heads/}"
+  local branch_name="${ref#refs/heads/}"
+  
+  echo "$(truncate_name "$branch_name")"
 }
 
 bureau_git_status () {
@@ -92,16 +107,64 @@ shop_world_path() {
   # First convert to home-relative path
   path="${path/#$HOME/~}"
 
-  # Define the prefix to replace
-  local prefix="~/world/trees/root/src"
+  # Check if we're in any worktree (~/world/trees/*/...)
+  if [[ "$path" =~ ^~/world/trees/[^/]+(/|$) ]]; then
+    # Extract worktree name from path
+    local full_path="${PWD}"
+    
+    if [[ "$full_path" =~ /world/trees/([^/]+)/src/(.*) ]]; then
+      # Inside src with subdirectory
+      local worktree_name="${match[1]}"
+      local src_path="${match[2]}"
+    elif [[ "$full_path" =~ /world/trees/([^/]+)/src$ ]]; then
+      # At src root
+      local worktree_name="${match[1]}"
+      local src_path=""
+    elif [[ "$full_path" =~ /world/trees/([^/]+)$ ]]; then
+      # At worktree root
+      local worktree_name="${match[1]}"
+      local src_path=""
+    elif [[ "$full_path" =~ /world/trees/([^/]+)/(.*) ]]; then
+      # In worktree but not in src
+      local worktree_name="${match[1]}"
+      local src_path="${match[2]}"
+    else
+      local worktree_name="unknown"
+      local src_path=""
+    fi
+  fi
 
-  # Replace ~/world/trees/root/src with //
-  if [[ "$path" == "$prefix" ]]; then
-    echo "${SHOPWORLD_COLOUR}//%{$reset_color%}"
-  elif [[ "$path" == "$prefix"/* ]]; then
-    # Remove the prefix and add //
-    echo "${SHOPWORLD_COLOUR}//${path#$prefix/}%{$reset_color%}"
+  # Common worktree processing (shared between all cases above)
+  if [[ "$path" =~ ^~/world/trees/[^/]+(/|$) ]]; then
+    # Truncate worktree name using shared function
+    worktree_name="$(truncate_name "$worktree_name")"
+
+    # Choose color based on worktree name
+    local worktree_colour
+    if [[ "$worktree_name" == "root" ]]; then
+      worktree_colour="${SHOPWORLD_COLOUR}"
+    else
+      worktree_colour="${GREY_COLOUR}"
+    fi
+
+    # Display path based on location within worktree
+    if [[ "$full_path" =~ /world/trees/[^/]+/src ]]; then
+      # We're in the src directory or subdirectory
+      if [[ -n "$src_path" ]]; then
+        echo "${SHOPWORLD_COLOUR}//${src_path}%{$reset_color%} ${worktree_colour}🌳{${worktree_name}}%{$reset_color%}"
+      else
+        echo "${SHOPWORLD_COLOUR}//%{$reset_color%} ${worktree_colour}🌳{${worktree_name}}%{$reset_color%}"
+      fi
+    else
+      # We're in the worktree but not in src (e.g., worktree root or other directory)
+      if [[ -n "$src_path" ]]; then
+        echo "${PATH_COLOUR}~${src_path}%{$reset_color%} ${worktree_colour}🌳{${worktree_name}}%{$reset_color%}"
+      else
+        echo "${PATH_COLOUR}${path}%{$reset_color%} ${worktree_colour}🌳{${worktree_name}}%{$reset_color%}"
+      fi
+    fi
   else
+    # Not in a shop/world path
     echo "${PATH_COLOUR}$path%{$reset_color%}"
   fi
 }
