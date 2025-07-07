@@ -1,8 +1,6 @@
 # oh-my-zsh Bureau Theme
 # Wildly hacked on to add context sensitive tags on right side
 
-### Colour Variables
-# Customize these to change the colour scheme
 GREY_COLOUR="%F{242}"
 TIME_COLOUR="${GREY_COLOUR}"
 PATH_COLOUR="%{$fg[blue]%}"
@@ -21,7 +19,16 @@ ROOT_SYMBOL_COLOUR="%{$fg[red]%}"
 ZSH_THEME_NVM_PROMPT_PREFIX="%B⬡%b "
 ZSH_THEME_NVM_PROMPT_SUFFIX=""
 
-### Shared Truncation Function
+### Git [±master ▾●]
+
+ZSH_THEME_GIT_PROMPT_PREFIX="${GIT_BRACKETS_COLOUR}[%{$reset_color%}${GIT_BRANCH_NAME_COLOUR}"
+ZSH_THEME_GIT_PROMPT_SUFFIX="${GIT_BRACKETS_COLOUR}]%{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg_bold[blue]%}✓%{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_AHEAD="%{$fg[red]%}▴%{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_BEHIND="%{$fg[magenta]%}▾%{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_STAGED="%{$fg_bold[yellow]%}●%{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_UNSTAGED="%{$fg_bold[green]%}●%{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_UNTRACKED="%{$fg_bold[cyan]%}●%{$reset_color%}"
 
 truncate_name() {
   local name="$1"
@@ -34,22 +41,13 @@ truncate_name() {
   fi
 }
 
-ZSH_THEME_GIT_PROMPT_PREFIX="${GIT_BRACKETS_COLOUR}[%{$reset_color%}${GIT_BRANCH_NAME_COLOUR}"
-ZSH_THEME_GIT_PROMPT_SUFFIX="${GIT_BRACKETS_COLOUR}]%{$reset_color%}"
-ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg_bold[blue]%}✓%{$reset_color%}"
-ZSH_THEME_GIT_PROMPT_AHEAD="%{$fg[red]%}▴%{$reset_color%}"
-ZSH_THEME_GIT_PROMPT_BEHIND="%{$fg[magenta]%}▾%{$reset_color%}"
-ZSH_THEME_GIT_PROMPT_STAGED="%{$fg_bold[yellow]%}●%{$reset_color%}"
-ZSH_THEME_GIT_PROMPT_UNSTAGED="%{$fg_bold[green]%}●%{$reset_color%}"
-ZSH_THEME_GIT_PROMPT_UNTRACKED="%{$fg_bold[cyan]%}●%{$reset_color%}"
-
-bureau_git_branch () {
+bureau_git_branch() {
   ref=$(command git symbolic-ref HEAD 2> /dev/null) || \
   ref=$(command git rev-parse --short HEAD 2> /dev/null) || return
   local branch_name="${ref#refs/heads/}"
-
   echo "$(truncate_name "$branch_name")"
 }
+
 
 bureau_git_status () {
   _INDEX=$(command git status -uno --porcelain -b 2> /dev/null)
@@ -84,13 +82,13 @@ bureau_git_status () {
 
 bureau_git_prompt () {
   local branch=$(bureau_git_branch)
-  local status=$(bureau_git_status)
+  local git_status=$(bureau_git_status)
   local result=""
 
   if [[ -n "$branch" ]]; then
     result="$ZSH_THEME_GIT_PROMPT_PREFIX$branch"
-    if [[ -n "$status" ]]; then
-      result="$result $status"
+    if [[ -n "$git_status" ]]; then
+      result="$result $git_status"
     fi
     result="$result$ZSH_THEME_GIT_PROMPT_SUFFIX"
   fi
